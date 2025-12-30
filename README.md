@@ -1,1 +1,1 @@
-# go-agentry
+# go-agentery
