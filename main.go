@@ -10,9 +10,15 @@ import (
 	"net/url"
 	"os"
 	"strings"
+	"sync"
 
 	"github.com/cloudwego/eino/adk"
 	"github.com/cloudwego/eino/schema"
+	"github.com/rs/xid"
+)
+
+var (
+	session sync.Map
 )
 
 // ParseUrlParams 解析路由
@@ -45,14 +51,25 @@ func Chat(w http.ResponseWriter, r *http.Request) {
 	// 解析路由
 	params := ParseUrlParams(r.URL.RawQuery)
 	message := params["msg"]
+	sid := params["session"]
 
 	// 调 Agent
 	ctx := context.Background()
 	messages := make([]adk.Message, 0, 10)
+
+	// 根据 SID 检查是否有历史消息, 如果有历史消息先加到 Message 里去, 再把当前用户提问放到最后面喂给 LLM
+	if len(sid) > 0 {
+		if value, exists := session.Load(sid); exists {
+			history := value.([]adk.Message)
+			messages = append(messages, history...)
+		}
+	}
 	messages = append(messages, &schema.Message{Role: schema.User, Content: message})
+
 	runner := GetRunner()
 	iter := runner.Run(ctx, messages)
 
+	answer := strings.Builder{} // 用于收集每次流式的只言片语
 	for {
 		event, ok := iter.Next()
 		if !ok {
@@ -77,8 +94,11 @@ func Chat(w http.ResponseWriter, r *http.Request) {
 			}
 
 			if msg != nil {
-				// 拿不到角色
 				fmt.Print(msg.Content)
+
+				// 收集
+				answer.WriteString(msg.Content)
+
 				// SSE 协议要求 数据内部不能包含换行符。此处把\n替换为<br>，在前端代码里还需要把<br>再替换回\n
 				fmt.Fprintf(w, "data: %s\n\n", strings.ReplaceAll(msg.Content, "\n", "<br>"))
 
@@ -87,6 +107,13 @@ func Chat(w http.ResponseWriter, r *http.Request) {
 			}
 		}
 	}
+
+	// 将本次回答完整收集后放入 Message, 再把 Message 放到 Map 里去
+	messages = append(messages, &schema.Message{Role: schema.User, Content: answer.String()})
+	if len(sid) > 0 {
+		session.Store(sid, messages)
+	}
+
 }
 
 func main() {
@@ -109,7 +136,13 @@ func main() {
 			log.Println("Template Create Failed")
 			return
 		}
-		err = tmpl.Execute(w, map[string]string{"url": "http://127.0.0.1:5678/chat"})
+
+		sid := xid.New().String() // 生成会话 ID 返回给前端
+
+		err = tmpl.Execute(w, map[string]string{
+			"url":     "http://127.0.0.1:5678/chat",
+			"session": sid,
+		})
 		if err != nil {
 			log.Println("Template Excute Failed")
 			return
