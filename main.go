@@ -2,6 +2,7 @@ package main
 
 import (
 	"context"
+	"fmt"
 	"html/template"
 	"io"
 	"log"
@@ -52,10 +53,11 @@ func Chat(w http.ResponseWriter, r *http.Request) {
 	runner := GetRunner()
 	iter := runner.Run(ctx, messages)
 
-	// http://127.0.0.1:5678/chat?msg=golang是什么&id=121&dd=111
 	for {
 		event, ok := iter.Next()
 		if !ok {
+			// 结束标志
+			fmt.Fprint(w, "data: [DONE]\n\n")
 			break
 		}
 
@@ -64,16 +66,6 @@ func Chat(w http.ResponseWriter, r *http.Request) {
 			break
 		}
 
-		//msg, err := event.Output.MessageOutput.GetMessage()
-		//if err != nil {
-		//	log.Printf("Read LLM Failed, %s", event.Err)
-		//} else {
-		//	// 判断是不是大模型输出的
-		//	if msg != nil && msg.Role == schema.System {
-		//		fmt.Println(msg)
-		//		w.Write([]byte(msg.Content))
-		//	}
-		//}
 		s := event.Output.MessageOutput.MessageStream
 		for {
 			msg, err := s.Recv()
@@ -86,12 +78,15 @@ func Chat(w http.ResponseWriter, r *http.Request) {
 
 			if msg != nil {
 				// 拿不到角色
-				w.Write([]byte(msg.Content))
+				fmt.Print(msg.Content)
+				// SSE 协议要求 数据内部不能包含换行符。此处把\n替换为<br>，在前端代码里还需要把<br>再替换回\n
+				fmt.Fprintf(w, "data: %s\n\n", strings.ReplaceAll(msg.Content, "\n", "<br>"))
+
+				// 强制数据立刻发给对方
 				flusher.Flush()
 			}
 		}
 	}
-
 }
 
 func main() {
