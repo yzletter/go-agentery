@@ -1,387 +1,387 @@
-<!DOCTYPE html>
-<html lang="zh-CN">
-<head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Go-Agentery AI助手</title>
-    <!-- 引入 Tailwind CSS -->
-    <script src="https://cdn.tailwindcss.com"></script>
-    <!-- 引入 Font Awesome 图标 -->
-    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
-    <!-- 引入 Markdown 解析库 -->
-    <script src="https://cdn.jsdelivr.net/npm/marked/marked.min.js"></script>
-    <!-- 引入代码高亮库 -->
-    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.9.0/styles/github-dark.min.css">
-    <script src="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.9.0/highlight.min.js"></script>
+<!--<!DOCTYPE html>-->
+<!--<html lang="zh-CN">-->
+<!--<head>-->
+<!--    <meta charset="UTF-8">-->
+<!--    <meta name="viewport" content="width=device-width, initial-scale=1.0">-->
+<!--    <title>Go-Agentery AI助手</title>-->
+<!--    &lt;!&ndash; 引入 Tailwind CSS &ndash;&gt;-->
+<!--    <script src="https://cdn.tailwindcss.com"></script>-->
+<!--    &lt;!&ndash; 引入 Font Awesome 图标 &ndash;&gt;-->
+<!--    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">-->
+<!--    &lt;!&ndash; 引入 Markdown 解析库 &ndash;&gt;-->
+<!--    <script src="https://cdn.jsdelivr.net/npm/marked/marked.min.js"></script>-->
+<!--    &lt;!&ndash; 引入代码高亮库 &ndash;&gt;-->
+<!--    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.9.0/styles/github-dark.min.css">-->
+<!--    <script src="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.9.0/highlight.min.js"></script>-->
 
-    <script>
-        tailwind.config = {
-            theme: {
-                extend: {
-                    colors: {
-                        primary: '#10a37f',
-                        bgDark: '#343541',
-                        bgLight: '#40414f',
-                        textPrimary: '#ececf1',
-                        textSecondary: '#8e8ea0',
-                    },
-                    fontFamily: {
-                        sans: ['Inter', 'system-ui', 'sans-serif'],
-                    },
-                }
-            }
-        }
-    </script>
+<!--    <script>-->
+<!--        tailwind.config = {-->
+<!--            theme: {-->
+<!--                extend: {-->
+<!--                    colors: {-->
+<!--                        primary: '#10a37f',-->
+<!--                        bgDark: '#343541',-->
+<!--                        bgLight: '#40414f',-->
+<!--                        textPrimary: '#ececf1',-->
+<!--                        textSecondary: '#8e8ea0',-->
+<!--                    },-->
+<!--                    fontFamily: {-->
+<!--                        sans: ['Inter', 'system-ui', 'sans-serif'],-->
+<!--                    },-->
+<!--                }-->
+<!--            }-->
+<!--        }-->
+<!--    </script>-->
 
-    <style type="text/tailwindcss">
-        @layer utilities {
-            .scrollbar-hide {
-                -ms-overflow-style: none;
-                scrollbar-width: none;
-            }
-            .scrollbar-hide::-webkit-scrollbar {
-                display: none;
-            }
-            .typing-indicator::after {
-                content: '';
-                animation: typing 1.5s infinite;
-            }
-            @keyframes typing {
-                0%, 100% { content: ''; }
-                25% { content: '.'; }
-                50% { content: '..'; }
-                75% { content: '...'; }
-            }
-            /* Markdown 样式适配 */
-            .markdown-content p {
-                margin-bottom: 0.5rem;
-            }
-            .markdown-content h1 {
-                font-size: 1.5rem;
-                font-weight: bold;
-                margin: 1rem 0;
-            }
-            .markdown-content h2 {
-                font-size: 1.25rem;
-                font-weight: bold;
-                margin: 0.75rem 0;
-            }
-            .markdown-content h3 {
-                font-size: 1.1rem;
-                font-weight: bold;
-                margin: 0.5rem 0;
-            }
-            .markdown-content ul, .markdown-content ol {
-                margin-left: 1.5rem;
-                margin-bottom: 0.5rem;
-            }
-            .markdown-content ul {
-                list-style-type: disc;
-            }
-            .markdown-content ol {
-                list-style-type: decimal;
-            }
-            .markdown-content blockquote {
-                border-left: 4px solid #10a37f;
-                padding-left: 1rem;
-                margin: 1rem 0;
-                color: #d1d5db;
-            }
-            .markdown-content code {
-                background-color: #444654;
-                padding: 0.1rem 0.3rem;
-                border-radius: 0.25rem;
-                font-family: 'Consolas', 'Monaco', monospace;
-            }
-            .markdown-content pre {
-                background-color: #444654;
-                padding: 1rem;
-                border-radius: 0.5rem;
-                margin: 1rem 0;
-                overflow-x: auto;
-            }
-            .markdown-content pre code {
-                background-color: transparent;
-                padding: 0;
-            }
-            .markdown-content a {
-                color: #10a37f;
-                text-decoration: underline;
-            }
-            .markdown-content strong {
-                font-weight: bold;
-            }
-            .markdown-content em {
-                font-style: italic;
-            }
-        }
-    </style>
-</head>
-<body class="bg-bgDark text-textPrimary font-sans h-screen flex flex-col overflow-hidden">
-<div class="flex h-full">
-    <!-- 主聊天区域 -->
-    <div class="flex-1 flex flex-col">
-        <!-- 移动端头部 -->
-        <div class="md:hidden p-4 bg-bgLight border-b border-gray-700 flex justify-between items-center">
-            <button class="text-textPrimary">
-                <i class="fas fa-bars text-xl"></i>
-            </button>
-            <h1 class="font-bold text-lg">ChatGPT (Markdown)</h1>
-            <button id="stop-button" class="text-textSecondary hover:text-red-500 hidden">
-                <i class="fas fa-stop-circle text-xl"></i>
-            </button>
-        </div>
+<!--    <style type="text/tailwindcss">-->
+<!--        @layer utilities {-->
+<!--            .scrollbar-hide {-->
+<!--                -ms-overflow-style: none;-->
+<!--                scrollbar-width: none;-->
+<!--            }-->
+<!--            .scrollbar-hide::-webkit-scrollbar {-->
+<!--                display: none;-->
+<!--            }-->
+<!--            .typing-indicator::after {-->
+<!--                content: '';-->
+<!--                animation: typing 1.5s infinite;-->
+<!--            }-->
+<!--            @keyframes typing {-->
+<!--                0%, 100% { content: ''; }-->
+<!--                25% { content: '.'; }-->
+<!--                50% { content: '..'; }-->
+<!--                75% { content: '...'; }-->
+<!--            }-->
+<!--            /* Markdown 样式适配 */-->
+<!--            .markdown-content p {-->
+<!--                margin-bottom: 0.5rem;-->
+<!--            }-->
+<!--            .markdown-content h1 {-->
+<!--                font-size: 1.5rem;-->
+<!--                font-weight: bold;-->
+<!--                margin: 1rem 0;-->
+<!--            }-->
+<!--            .markdown-content h2 {-->
+<!--                font-size: 1.25rem;-->
+<!--                font-weight: bold;-->
+<!--                margin: 0.75rem 0;-->
+<!--            }-->
+<!--            .markdown-content h3 {-->
+<!--                font-size: 1.1rem;-->
+<!--                font-weight: bold;-->
+<!--                margin: 0.5rem 0;-->
+<!--            }-->
+<!--            .markdown-content ul, .markdown-content ol {-->
+<!--                margin-left: 1.5rem;-->
+<!--                margin-bottom: 0.5rem;-->
+<!--            }-->
+<!--            .markdown-content ul {-->
+<!--                list-style-type: disc;-->
+<!--            }-->
+<!--            .markdown-content ol {-->
+<!--                list-style-type: decimal;-->
+<!--            }-->
+<!--            .markdown-content blockquote {-->
+<!--                border-left: 4px solid #10a37f;-->
+<!--                padding-left: 1rem;-->
+<!--                margin: 1rem 0;-->
+<!--                color: #d1d5db;-->
+<!--            }-->
+<!--            .markdown-content code {-->
+<!--                background-color: #444654;-->
+<!--                padding: 0.1rem 0.3rem;-->
+<!--                border-radius: 0.25rem;-->
+<!--                font-family: 'Consolas', 'Monaco', monospace;-->
+<!--            }-->
+<!--            .markdown-content pre {-->
+<!--                background-color: #444654;-->
+<!--                padding: 1rem;-->
+<!--                border-radius: 0.5rem;-->
+<!--                margin: 1rem 0;-->
+<!--                overflow-x: auto;-->
+<!--            }-->
+<!--            .markdown-content pre code {-->
+<!--                background-color: transparent;-->
+<!--                padding: 0;-->
+<!--            }-->
+<!--            .markdown-content a {-->
+<!--                color: #10a37f;-->
+<!--                text-decoration: underline;-->
+<!--            }-->
+<!--            .markdown-content strong {-->
+<!--                font-weight: bold;-->
+<!--            }-->
+<!--            .markdown-content em {-->
+<!--                font-style: italic;-->
+<!--            }-->
+<!--        }-->
+<!--    </style>-->
+<!--</head>-->
+<!--<body class="bg-bgDark text-textPrimary font-sans h-screen flex flex-col overflow-hidden">-->
+<!--<div class="flex h-full">-->
+<!--    &lt;!&ndash; 主聊天区域 &ndash;&gt;-->
+<!--    <div class="flex-1 flex flex-col">-->
+<!--        &lt;!&ndash; 移动端头部 &ndash;&gt;-->
+<!--        <div class="md:hidden p-4 bg-bgLight border-b border-gray-700 flex justify-between items-center">-->
+<!--            <button class="text-textPrimary">-->
+<!--                <i class="fas fa-bars text-xl"></i>-->
+<!--            </button>-->
+<!--            <h1 class="font-bold text-lg">ChatGPT (Markdown)</h1>-->
+<!--            <button id="stop-button" class="text-textSecondary hover:text-red-500 hidden">-->
+<!--                <i class="fas fa-stop-circle text-xl"></i>-->
+<!--            </button>-->
+<!--        </div>-->
 
-        <!-- 桌面端头部 -->
-        <div class="hidden md:flex p-4 bg-bgLight border-b border-gray-700 justify-between items-center">
-            <button id="desktop-stop-button" class="text-textSecondary hover:text-red-500 px-3 py-1 rounded hidden items-center gap-2">
-                <i class="fas fa-stop-circle"></i>
-                <span>停止生成</span>
-            </button>
-        </div>
+<!--        &lt;!&ndash; 桌面端头部 &ndash;&gt;-->
+<!--        <div class="hidden md:flex p-4 bg-bgLight border-b border-gray-700 justify-between items-center">-->
+<!--            <button id="desktop-stop-button" class="text-textSecondary hover:text-red-500 px-3 py-1 rounded hidden items-center gap-2">-->
+<!--                <i class="fas fa-stop-circle"></i>-->
+<!--                <span>停止生成</span>-->
+<!--            </button>-->
+<!--        </div>-->
 
-        <!-- 聊天内容区域 -->
-        <div id="chat-container" class="flex-1 p-4 overflow-y-auto scrollbar-hide space-y-6">
-            <div class="max-w-3xl mx-auto pt-10">
-                <h1 class="text-3xl font-bold mb-6 text-center">Go-Agentery AI助手</h1>
-                <p class="text-textSecondary text-center mb-4">
-                    Hi, 开始和我聊天吧
-                </p>
-            </div>
-        </div>
+<!--        &lt;!&ndash; 聊天内容区域 &ndash;&gt;-->
+<!--        <div id="chat-container" class="flex-1 p-4 overflow-y-auto scrollbar-hide space-y-6">-->
+<!--            <div class="max-w-3xl mx-auto pt-10">-->
+<!--                <h1 class="text-3xl font-bold mb-6 text-center">Go-Agentery AI助手</h1>-->
+<!--                <p class="text-textSecondary text-center mb-4">-->
+<!--                    Hi, 开始和我聊天吧-->
+<!--                </p>-->
+<!--            </div>-->
+<!--        </div>-->
 
-        <!-- 输入区域 -->
-        <div class="p-4 border-t border-gray-700 bg-bgLight">
-            <div class="max-w-3xl mx-auto relative">
-                    <textarea
-                            id="message-input"
-                            class="w-full bg-bgDark border border-gray-600 rounded-lg p-3 pr-12 focus:outline-none focus:ring-2 focus:ring-primary resize-none h-16"
-                            placeholder="请在此输入你想说的话"
-                            disabled
-                    ></textarea>
-                <button
-                        id="send-button"
-                        class="absolute right-3 bottom-3 text-textSecondary hover:text-primary transition disabled:opacity-50"
-                        disabled
-                >
-                    <i class="fas fa-paper-plane text-xl"></i>
-                </button>
-            </div>
-            <p class="text-xs text-textSecondary text-center mt-2">
-                支持 Markdown 格式：加粗、斜体、代码块、列表、链接等
-            </p>
-        </div>
-    </div>
-</div>
+<!--        &lt;!&ndash; 输入区域 &ndash;&gt;-->
+<!--        <div class="p-4 border-t border-gray-700 bg-bgLight">-->
+<!--            <div class="max-w-3xl mx-auto relative">-->
+<!--                    <textarea-->
+<!--                            id="message-input"-->
+<!--                            class="w-full bg-bgDark border border-gray-600 rounded-lg p-3 pr-12 focus:outline-none focus:ring-2 focus:ring-primary resize-none h-16"-->
+<!--                            placeholder="请在此输入你想说的话"-->
+<!--                            disabled-->
+<!--                    ></textarea>-->
+<!--                <button-->
+<!--                        id="send-button"-->
+<!--                        class="absolute right-3 bottom-3 text-textSecondary hover:text-primary transition disabled:opacity-50"-->
+<!--                        disabled-->
+<!--                >-->
+<!--                    <i class="fas fa-paper-plane text-xl"></i>-->
+<!--                </button>-->
+<!--            </div>-->
+<!--            <p class="text-xs text-textSecondary text-center mt-2">-->
+<!--                支持 Markdown 格式：加粗、斜体、代码块、列表、链接等-->
+<!--            </p>-->
+<!--        </div>-->
+<!--    </div>-->
+<!--</div>-->
 
-<script>
-    // 初始化 marked.js 和 highlight.js
-    marked.setOptions({
-        highlight: function(code, lang) {
-            // 如果指定了语言且 highlight.js 支持，则高亮
-            if (lang && hljs.getLanguage(lang)) {
-                return hljs.highlight(code, { language: lang }).value;
-            }
-            // 否则使用自动检测
-            return hljs.highlightAuto(code).value;
-        },
-        breaks: true, // 支持换行符
-        gfm: true     // 支持 GitHub 风格的 Markdown
-    });
+<!--<script>-->
+<!--    // 初始化 marked.js 和 highlight.js-->
+<!--    marked.setOptions({-->
+<!--        highlight: function(code, lang) {-->
+<!--            // 如果指定了语言且 highlight.js 支持，则高亮-->
+<!--            if (lang && hljs.getLanguage(lang)) {-->
+<!--                return hljs.highlight(code, { language: lang }).value;-->
+<!--            }-->
+<!--            // 否则使用自动检测-->
+<!--            return hljs.highlightAuto(code).value;-->
+<!--        },-->
+<!--        breaks: true, // 支持换行符-->
+<!--        gfm: true     // 支持 GitHub 风格的 Markdown-->
+<!--    });-->
 
-    // DOM 元素
-    const chatContainer = document.getElementById('chat-container');
-    const messageInput = document.getElementById('message-input');
-    const sendButton = document.getElementById('send-button');
-    const stopButton = document.getElementById('stop-button');
-    const desktopStopButton = document.getElementById('desktop-stop-button');
+<!--    // DOM 元素-->
+<!--    const chatContainer = document.getElementById('chat-container');-->
+<!--    const messageInput = document.getElementById('message-input');-->
+<!--    const sendButton = document.getElementById('send-button');-->
+<!--    const stopButton = document.getElementById('stop-button');-->
+<!--    const desktopStopButton = document.getElementById('desktop-stop-button');-->
 
-    // SSE 相关变量
-    let eventSource = null;
-    let currentAiMessage = null;
-    let currentAiContent = ''; // 存储完整的 AI 回复内容
-    let isGenerating = false;
+<!--    // SSE 相关变量-->
+<!--    let eventSource = null;-->
+<!--    let currentAiMessage = null;-->
+<!--    let currentAiContent = ''; // 存储完整的 AI 回复内容-->
+<!--    let isGenerating = false;-->
 
-    // 初始化
-    function init() {
-        messageInput.disabled = false;
-        sendButton.disabled = false;
-    }
+<!--    // 初始化-->
+<!--    function init() {-->
+<!--        messageInput.disabled = false;-->
+<!--        sendButton.disabled = false;-->
+<!--    }-->
 
-    init();
-    messageInput.focus();
+<!--    init();-->
+<!--    messageInput.focus();-->
 
-    // 解析 Markdown 并渲染
-    function renderMarkdown(text) {
-        if (!text) return '';
-        // 使用 marked.js 解析 Markdown 为 HTML
-        return marked.parse(text);
-    }
+<!--    // 解析 Markdown 并渲染-->
+<!--    function renderMarkdown(text) {-->
+<!--        if (!text) return '';-->
+<!--        // 使用 marked.js 解析 Markdown 为 HTML-->
+<!--        return marked.parse(text);-->
+<!--    }-->
 
-    // 连接 SSE（真实项目中替换为后端接口）
-    function connectSSE(message) {
+<!--    // 连接 SSE（真实项目中替换为后端接口）-->
+<!--    function connectSSE(message) {-->
 
-        isGenerating = true;
-        showStopButtons(true);
-        currentAiContent = ''; // 重置存储的内容
+<!--        isGenerating = true;-->
+<!--        showStopButtons(true);-->
+<!--        currentAiContent = ''; // 重置存储的内容-->
 
-        eventSource = new EventSource("{{ .url }}?msg="+message+"&session={{ .session }}");
-        // 后端返回响应
-        eventSource.onmessage = (event) => {
-            if (event.data === "[DONE]") {
-                disconnectSSE();
-                return;
-            }
-            showMarkdown(event.data.replaceAll("<br>","\n"));
-        };
-    }
+<!--        eventSource = new EventSource("{{ .url }}?msg="+message+"&session={{ .session }}");-->
+<!--        // 后端返回响应-->
+<!--        eventSource.onmessage = (event) => {-->
+<!--            if (event.data === "[DONE]") {-->
+<!--                disconnectSSE();-->
+<!--                return;-->
+<!--            }-->
+<!--            showMarkdown(event.data.replaceAll("<br>","\n"));-->
+<!--        };-->
+<!--    }-->
 
-    function showMarkdown(text){
-        currentAiContent += text;
-        // 渲染 Markdown 并更新 UI
-        if (currentAiMessage) {
-            currentAiMessage.innerHTML = renderMarkdown(currentAiContent);
-            // 重新高亮代码块
-            currentAiMessage.querySelectorAll('pre code').forEach((block) => {
-                hljs.highlightElement(block);
-            });
-            scrollToBottom();
-        }
-    }
+<!--    function showMarkdown(text){-->
+<!--        currentAiContent += text;-->
+<!--        // 渲染 Markdown 并更新 UI-->
+<!--        if (currentAiMessage) {-->
+<!--            currentAiMessage.innerHTML = renderMarkdown(currentAiContent);-->
+<!--            // 重新高亮代码块-->
+<!--            currentAiMessage.querySelectorAll('pre code').forEach((block) => {-->
+<!--                hljs.highlightElement(block);-->
+<!--            });-->
+<!--            scrollToBottom();-->
+<!--        }-->
+<!--    }-->
 
-    // 断开 SSE 连接
-    function disconnectSSE() {
-        isGenerating = false;
-        showStopButtons(false);
+<!--    // 断开 SSE 连接-->
+<!--    function disconnectSSE() {-->
+<!--        isGenerating = false;-->
+<!--        showStopButtons(false);-->
 
-        if (eventSource) {
-            console.log("断开SSE连接")
-            eventSource.close();
-            eventSource = null;
-        }
+<!--        if (eventSource) {-->
+<!--            console.log("断开SSE连接")-->
+<!--            eventSource.close();-->
+<!--            eventSource = null;-->
+<!--        }-->
 
-        if (currentAiMessage) {
-            // 移除打字指示器
-            const avatar = currentAiMessage.closest('div').previousSibling.querySelector('.fa-robot');
-            if (avatar) {
-                console.log("移除打字指示器")
-                avatar.classList.remove('typing-indicator');
-            }
-        }
-    }
+<!--        if (currentAiMessage) {-->
+<!--            // 移除打字指示器-->
+<!--            const avatar = currentAiMessage.closest('div').previousSibling.querySelector('.fa-robot');-->
+<!--            if (avatar) {-->
+<!--                console.log("移除打字指示器")-->
+<!--                avatar.classList.remove('typing-indicator');-->
+<!--            }-->
+<!--        }-->
+<!--    }-->
 
-    // 发送消息
-    function sendMessage() {
-        const message = messageInput.value.trim();
-        if (!message || isGenerating) return;
+<!--    // 发送消息-->
+<!--    function sendMessage() {-->
+<!--        const message = messageInput.value.trim();-->
+<!--        if (!message || isGenerating) return;-->
 
-        messageInput.value = '';
-        // 渲染用户消息（也支持 Markdown）
-        addMessageToChat(message, 'user');
-        // 创建 AI 消息容器
-        currentAiMessage = addMessageToChat('', 'ai', true);
-        // 连接 SSE
-        connectSSE(message);
-    }
+<!--        messageInput.value = '';-->
+<!--        // 渲染用户消息（也支持 Markdown）-->
+<!--        addMessageToChat(message, 'user');-->
+<!--        // 创建 AI 消息容器-->
+<!--        currentAiMessage = addMessageToChat('', 'ai', true);-->
+<!--        // 连接 SSE-->
+<!--        connectSSE(message);-->
+<!--    }-->
 
-    // 添加消息到聊天界面
-    function addMessageToChat(content, sender, isLoading = false) {
-        const messageDiv = document.createElement('div');
-        messageDiv.className = `max-w-3xl mx-auto ${sender === 'user' ? 'text-right' : 'text-left'}`;
+<!--    // 添加消息到聊天界面-->
+<!--    function addMessageToChat(content, sender, isLoading = false) {-->
+<!--        const messageDiv = document.createElement('div');-->
+<!--        messageDiv.className = `max-w-3xl mx-auto ${sender === 'user' ? 'text-right' : 'text-left'}`;-->
 
-        const contentDiv = document.createElement('div');
-        contentDiv.className = `inline-block p-4 rounded-lg max-w-[80%] markdown-content ${
-            sender === 'user'
-                ? 'bg-primary text-white'
-                : 'bg-gray-700 text-textPrimary'
-        }`;
+<!--        const contentDiv = document.createElement('div');-->
+<!--        contentDiv.className = `inline-block p-4 rounded-lg max-w-[80%] markdown-content ${-->
+<!--            sender === 'user'-->
+<!--                ? 'bg-primary text-white'-->
+<!--                : 'bg-gray-700 text-textPrimary'-->
+<!--        }`;-->
 
-        // 头像
-        const avatarDiv = document.createElement('div');
-        avatarDiv.className = `inline-block ${sender === 'user' ? 'ml-2' : 'mr-2'} vertical-align-middle`;
+<!--        // 头像-->
+<!--        const avatarDiv = document.createElement('div');-->
+<!--        avatarDiv.className = `inline-block ${sender === 'user' ? 'ml-2' : 'mr-2'} vertical-align-middle`;-->
 
-        const avatarIcon = document.createElement('i');
-        avatarIcon.className = `fas ${
-            sender === 'user'
-                ? 'fa-user'
-                : isLoading
-                    ? 'fa-robot typing-indicator'
-                    : 'fa-robot'
-        } text-xl`;
+<!--        const avatarIcon = document.createElement('i');-->
+<!--        avatarIcon.className = `fas ${-->
+<!--            sender === 'user'-->
+<!--                ? 'fa-user'-->
+<!--                : isLoading-->
+<!--                    ? 'fa-robot typing-indicator'-->
+<!--                    : 'fa-robot'-->
+<!--        } text-xl`;-->
 
-        avatarDiv.appendChild(avatarIcon);
+<!--        avatarDiv.appendChild(avatarIcon);-->
 
-        // 渲染 Markdown 内容
-        if (content) {
-            contentDiv.innerHTML = renderMarkdown(content);
-            // 代码高亮
-            contentDiv.querySelectorAll('pre code').forEach((block) => {
-                hljs.highlightElement(block);
-            });
-        }
+<!--        // 渲染 Markdown 内容-->
+<!--        if (content) {-->
+<!--            contentDiv.innerHTML = renderMarkdown(content);-->
+<!--            // 代码高亮-->
+<!--            contentDiv.querySelectorAll('pre code').forEach((block) => {-->
+<!--                hljs.highlightElement(block);-->
+<!--            });-->
+<!--        }-->
 
-        // 组装消息
-        if (sender === 'user') {
-            messageDiv.appendChild(contentDiv);
-            messageDiv.appendChild(avatarDiv);
-        } else {
-            messageDiv.appendChild(avatarDiv);
-            messageDiv.appendChild(contentDiv);
-        }
+<!--        // 组装消息-->
+<!--        if (sender === 'user') {-->
+<!--            messageDiv.appendChild(contentDiv);-->
+<!--            messageDiv.appendChild(avatarDiv);-->
+<!--        } else {-->
+<!--            messageDiv.appendChild(avatarDiv);-->
+<!--            messageDiv.appendChild(contentDiv);-->
+<!--        }-->
 
-        chatContainer.appendChild(messageDiv);
-        scrollToBottom();
+<!--        chatContainer.appendChild(messageDiv);-->
+<!--        scrollToBottom();-->
 
-        return contentDiv;
-    }
+<!--        return contentDiv;-->
+<!--    }-->
 
-    // 滚动到底部
-    function scrollToBottom() {
-        chatContainer.scrollTop = chatContainer.scrollHeight;
-    }
+<!--    // 滚动到底部-->
+<!--    function scrollToBottom() {-->
+<!--        chatContainer.scrollTop = chatContainer.scrollHeight;-->
+<!--    }-->
 
-    // 显示/隐藏停止按钮
-    function showStopButtons(show) {
-        if (show) {
-            stopButton.classList.remove('hidden');
-            desktopStopButton.classList.remove('hidden');
-            sendButton.disabled = true;
-            messageInput.disabled = true;
-        } else {
-            stopButton.classList.add('hidden');
-            desktopStopButton.classList.add('hidden');
-            sendButton.disabled = false;
-            messageInput.disabled = false;
-        }
-    }
+<!--    // 显示/隐藏停止按钮-->
+<!--    function showStopButtons(show) {-->
+<!--        if (show) {-->
+<!--            stopButton.classList.remove('hidden');-->
+<!--            desktopStopButton.classList.remove('hidden');-->
+<!--            sendButton.disabled = true;-->
+<!--            messageInput.disabled = true;-->
+<!--        } else {-->
+<!--            stopButton.classList.add('hidden');-->
+<!--            desktopStopButton.classList.add('hidden');-->
+<!--            sendButton.disabled = false;-->
+<!--            messageInput.disabled = false;-->
+<!--        }-->
+<!--    }-->
 
-    // 停止生成
-    function stopGeneration() {
-        disconnectSSE();
-    }
+<!--    // 停止生成-->
+<!--    function stopGeneration() {-->
+<!--        disconnectSSE();-->
+<!--    }-->
 
-    // 事件监听
-    sendButton.addEventListener('click', sendMessage);
-    messageInput.addEventListener('keydown', (e) => {
-        if (e.key === 'Enter' && !e.shiftKey && !isGenerating) {
-            e.preventDefault();
-            sendMessage();
-        }
-    });
+<!--    // 事件监听-->
+<!--    sendButton.addEventListener('click', sendMessage);-->
+<!--    messageInput.addEventListener('keydown', (e) => {-->
+<!--        if (e.key === 'Enter' && !e.shiftKey && !isGenerating) {-->
+<!--            e.preventDefault();-->
+<!--            sendMessage();-->
+<!--        }-->
+<!--    });-->
 
-    stopButton.addEventListener('click', stopGeneration);
-    desktopStopButton.addEventListener('click', stopGeneration);
+<!--    stopButton.addEventListener('click', stopGeneration);-->
+<!--    desktopStopButton.addEventListener('click', stopGeneration);-->
 
-    // 自适应文本框高度
-    messageInput.addEventListener('input', () => {
-        messageInput.style.height = 'auto';
-        messageInput.style.height = `${Math.min(messageInput.scrollHeight, 120)}px`;
-    });
+<!--    // 自适应文本框高度-->
+<!--    messageInput.addEventListener('input', () => {-->
+<!--        messageInput.style.height = 'auto';-->
+<!--        messageInput.style.height = `${Math.min(messageInput.scrollHeight, 120)}px`;-->
+<!--    });-->
 
-    // 页面卸载时断开连接
-    window.addEventListener('beforeunload', () => {
-        disconnectSSE();
-    });
-</script>
-</body>
-</html>
+<!--    // 页面卸载时断开连接-->
+<!--    window.addEventListener('beforeunload', () => {-->
+<!--        disconnectSSE();-->
+<!--    });-->
+<!--</script>-->
+<!--</body>-->
+<!--</html>-->

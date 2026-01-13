@@ -5,6 +5,7 @@ import (
 	"sync"
 
 	"github.com/cloudwego/eino/adk"
+	"github.com/cloudwego/eino/callbacks"
 	"github.com/cloudwego/eino/components/tool"
 	"github.com/cloudwego/eino/compose"
 	llm "github.com/yzletter/go-agentery/model"
@@ -19,6 +20,8 @@ var (
 func GetRunner() *adk.Runner {
 	once.Do(func() {
 		ctx := context.Background()
+		callbacks.AppendGlobalHandlers(llm.GetStartCallback())
+		callbacks.AppendGlobalHandlers(llm.GetEndCallback())
 
 		// 创建 Model
 		model := llm.CreateArkModel()
